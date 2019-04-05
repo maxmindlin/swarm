@@ -12,7 +12,9 @@ import (
 
 // Article organizes the different components of an article
 type Article struct {
-	Title, Description, URL string
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	URL         string `json:"url"`
 }
 
 // IsArticle determines whether or not a webpage is an article
