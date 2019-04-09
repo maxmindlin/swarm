@@ -5,17 +5,11 @@ import (
 	"strings"
 
 	"github.com/maxmindlin/swarm/core"
+	"github.com/maxmindlin/swarm/model"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 )
-
-// Article organizes the different components of an article
-type Article struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	URL         string `json:"url"`
-}
 
 // IsArticle determines whether or not a webpage is an article
 func IsArticle(metaTags *goquery.Selection) bool {
@@ -54,7 +48,7 @@ func GetArticleURL(metaTags *goquery.Selection) string {
 
 // IsKeywordRelevant returns a bool to whether or not an article is relevant
 // to a given key word
-func IsKeywordRelevant(article Article, word string) bool {
+func IsKeywordRelevant(article model.Article, word string) bool {
 	word = strings.ToLower(word)
 
 	// Is there an exact match for the word in the title
@@ -73,33 +67,33 @@ func IsKeywordRelevant(article Article, word string) bool {
 	return false
 }
 
-// IsArticleRelevant determines if an article is relevant to any word
-// in a set of keywords.
-func IsArticleRelevant(article Article, keywords []string) bool {
-	// The moment it is relevant to a keyword, return.
-	// In the future should store keyword - article combos.
+// GatherArticleKeywords determines returns a slice of keywords relevant to article
+func GatherArticleKeywords(article model.Article, keywords []string) []string {
+	var matched []string
 	for _, word := range keywords {
 		if IsKeywordRelevant(article, word) {
-			return true
+			matched = append(matched, word)
 		}
 	}
-	return false
+
+	return matched
 }
 
 // GatherStory determines if an HTML element is an Article,
 // and if so, gathers relevant information into an Article object.
-func GatherStory(e *colly.HTMLElement) (Article, error) {
+func GatherStory(e *colly.HTMLElement, keywords []string) (model.Article, error) {
 	metaTags := core.GetMetaTags(e)
 	if isArticle := IsArticle(metaTags); isArticle {
 		// The HTML we were passed belongs to an article.
 		// Begin gathering relevant information.
-		temp := Article{}
+		temp := model.Article{}
 		// Article content gathering should be concurrent.
 		temp.Title = GetArticleTitle(e, metaTags)
 		temp.Description = GetArticleDescription(e, metaTags)
 		temp.URL = GetArticleURL(metaTags)
+		temp.Keywords = GatherArticleKeywords(temp, keywords)
 
 		return temp, nil
 	}
-	return Article{}, errors.New("HTML does not belong to an article")
+	return model.Article{}, errors.New("HTML does not belong to an article")
 }

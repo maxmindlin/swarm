@@ -5,11 +5,12 @@ import (
 
 	"github.com/gocolly/colly"
 	"github.com/maxmindlin/swarm/core/article"
+	"github.com/maxmindlin/swarm/model"
 )
 
 // Crawl initiates a crawling session given a starting URL
-func Crawl(start string) []article.Article {
-	stories := []article.Article{}
+func Crawl(start string) []model.Article {
+	stories := []model.Article{}
 	keywords := []string{
 		"Trump",
 		"music",
@@ -37,14 +38,14 @@ func Crawl(start string) []article.Article {
 
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 		// Once the body loads, analyze the contents of the page
-		story, err := article.GatherStory(e)
+		story, err := article.GatherStory(e, keywords)
 		if err != nil {
 			return
 		}
-		if article.IsArticleRelevant(story, keywords) {
+
+		if len(story.Keywords) == 0 {
 			stories = append(stories, story)
 		}
-
 	})
 
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {

@@ -1,14 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"log"
+	"net/http"
 
-	"github.com/maxmindlin/swarm/workers"
+	"github.com/gorilla/mux"
+	"github.com/maxmindlin/swarm/api"
 )
 
 func main() {
-	start := os.Args[1]
-	stories := workers.Crawl(start)
-	fmt.Println(stories)
+	r := mux.NewRouter()
+	r.HandleFunc("/api/articles", api.CreateArticleEndpoint).Methods("POST")
+	if err := http.ListenAndServe(":3000", r); err != nil {
+		log.Fatal(err)
+	}
 }
