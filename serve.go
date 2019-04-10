@@ -11,6 +11,7 @@ import (
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/articles", api.CreateArticleEndpoint).Methods("POST")
+	r.HandleFunc("/api/user", api.CreateUserEndpoint).Methods("POST")
 	if err := http.ListenAndServe(":3000", r); err != nil {
 		log.Fatal(err)
 	}
