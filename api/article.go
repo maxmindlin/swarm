@@ -28,6 +28,7 @@ func CreateArticleEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	// Insert into DB
 	s, err := mongodb.NewSession()
+	defer s.Close()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
