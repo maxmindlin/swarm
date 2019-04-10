@@ -1,7 +1,8 @@
-package workers
+package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gocolly/colly"
 	"github.com/maxmindlin/swarm/core/article"
@@ -43,7 +44,7 @@ func Crawl(start string) []model.Article {
 			return
 		}
 
-		if len(story.Keywords) == 0 {
+		if len(story.Keywords) != 0 {
 			stories = append(stories, story)
 		}
 	})
@@ -61,4 +62,12 @@ func Crawl(start string) []model.Article {
 	c.Visit(start)
 
 	return stories
+}
+
+// Kicks off a crawl session via commandline
+// ex: ./crawler https://www.rollingstone.com
+func main() {
+	start := os.Args[1]
+	stories := Crawl(start)
+	fmt.Println(stories)
 }
